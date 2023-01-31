@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading;
 using System.Windows;
+using TInvestHistoryViewer.Services;
 using TInvestHistoryViewer.ViewModels;
 using TInvestHistoryViewer.Views;
 
@@ -64,7 +65,8 @@ public partial class App : Application
         //Добавление экземпляров классов и сервисов
         services
             .AddSingleton<MainWindow>()
-            .AddSingleton<MainWindowViewModel>();
+            .AddSingleton<MainWindowViewModel>()
+            .AddSingleton<TinkoffTradingService>();
 
         return services;
     }

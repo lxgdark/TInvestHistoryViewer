@@ -361,3 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/TInvestHistoryViewer/appsettings.json
+/TInvestHistoryViewer/appsettings.Development.json

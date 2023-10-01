@@ -1,27 +1,50 @@
-﻿using Microsoft.Extensions.Configuration;
-using System;
+﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Tinkoff.Trading.OpenApi.Models;
-using Tinkoff.Trading.OpenApi.Network;
+using Tinkoff.InvestApi;
+using Tinkoff.InvestApi.V1;
 
 namespace TInvestHistoryViewer.Services;
 
 public class TinkoffTradingService
 {
     #region "Локальные"
-    readonly Context context;
+    readonly InvestApiClient _investApi;
     #endregion
-    public TinkoffTradingService(IConfiguration configuration)
+
+    public TinkoffTradingService(InvestApiClient investApi) =>
+        _investApi = investApi;
+
+    /// <summary>
+    /// Получение списка биржевых счетов
+    /// </summary>
+    public async Task<List<Account>> GetInvestAccountsAsync()
     {
-        IConfigurationSection section = configuration.GetSection("TinkoffApiToken");
-        string token = section?.Value ?? throw new ArgumentNullException("TinkoffApiToken");
-        Connection connection = ConnectionFactory.GetConnection(token);
-        context = connection.Context;
+        GetAccountsResponse response = await _investApi.Users.GetAccountsAsync();
+        return response.Accounts.Where(w => w.Type is AccountType.Tinkoff or AccountType.TinkoffIis).ToList();
     }
 
-    public async Task Test ()
+    public async Task<decimal> GetHistoryAsync(string accountId)
     {
-        var x = await context.MarketStocksAsync();
+        List<OperationItem> result = new();
+        GetOperationsByCursorRequest request = new()
+        {
+            AccountId = accountId,
+            Limit = 1000
+        };
+
+        bool hasNext = true;
+        while (hasNext)
+        {
+            GetOperationsByCursorResponse response = await _investApi.Operations.GetOperationsByCursorAsync(request);
+            result.AddRange(response.Items);
+            request.Cursor = response.NextCursor;
+            hasNext = response.HasNext;
+
+        }
+
+        decimal x = result.Where(w => w.Payment.Currency == "rub").Sum(s => s.Payment.Units + s.Commission.Units);
+        return x;
     }
 }

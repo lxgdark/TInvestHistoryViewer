@@ -6,7 +6,13 @@
         xmlns:viewModels="clr-namespace:TInvestHistoryViewer.ViewModels"
         mc:Ignorable="d" d:DataContext="{d:DesignInstance viewModels:MainWindowViewModel}"
         Title="Просмотр истории Тинькофф инвестиций" Height="450" Width="800" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded">
-    <Grid>
-
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <ComboBox ItemsSource="{Binding Accounts}" SelectedItem="{Binding SelectedAccount}" DisplayMemberPath="Name" SelectedIndex="0" HorizontalAlignment="Left" Width="250"/>
+        <!--<ProgressBar Grid.Row="2" IsIndeterminate="{Binding PageLoadStatus}" Height="5"/>-->
     </Grid>
 </Window>

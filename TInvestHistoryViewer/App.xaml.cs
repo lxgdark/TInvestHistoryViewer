@@ -40,7 +40,7 @@ public partial class App : Application
         base.OnStartup(e);
 
         //Проверяет, что запущен только один Экземпляр приложения
-        CheckSingleInstance("TInvestHystory");
+        CheckSingleInstance("TInvestHistory");
 
         //Получение файла конфигурации
         string appsettingsPath = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") == "Development" ? "appsettings.Development.json" : "appsettings.json";
@@ -61,6 +61,10 @@ public partial class App : Application
         //Реализация работы с конфигурациями
         IConfiguration configuration = new ConfigurationBuilder().AddJsonFile(appsettingsPath, false, false).Build();
         services.AddSingleton(s => configuration);
+
+        var x = configuration.GetValue<string>("TinkoffApiToken");
+        //Добавление сервиса Тинькофф инвестиций
+        services.AddInvestApiClient((_, settings) => settings.AccessToken = configuration.GetValue<string>("TinkoffApiToken"));
 
         //Добавление экземпляров классов и сервисов
         services
